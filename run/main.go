@@ -5,7 +5,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/pilosa/simple"
+	"github.com/tgruben/pgsimple"
 )
 
 const (
@@ -37,7 +37,7 @@ func main() {
 }
 func handleRequest(client net.Conn) error {
 	//client := *bufio.NewReader(socket)
-	pgclient := simple.NewHandler(client)
+	pgclient := pgsimple.NewHandler(client)
 	if err := pgclient.Startup(); err != nil {
 		return err
 	}
@@ -46,19 +46,19 @@ func handleRequest(client net.Conn) error {
 	if err != nil {
 		return err
 	}
-	simple.Decode(tp, packet)
-	for tp != simple.Terminate {
+	pgsimple.Decode(tp, packet)
+	for tp != pgsimple.Terminate {
 		if tp == 0 {
 			break
 		}
-		if tp == simple.Query {
+		if tp == pgsimple.Query {
 			fmt.Println("DO QUERY", packet)
-			rs := simple.BuildThowAwayResult()
+			rs := pgsimple.BuildThowAwayResult()
 			pgclient.Send(rs)
 		}
 
 		tp, packet, err = pgclient.ReadPacket()
-		simple.Decode(tp, packet)
+		pgsimple.Decode(tp, packet)
 	}
 	fmt.Println("DONE\n\n")
 	pgclient.Shutdown()
